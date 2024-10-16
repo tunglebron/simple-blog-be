@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @unique @id @default(uuid())
+  username String @unique
+  fullname String @default("")
+  email String @unique
+  password String
+  bio String @default("")
+  createdDate DateTime @default(now())
+  blogs Blog[]
+  comments Comment[]
+}
+
+model Category {
+  id String @unique @id @default(uuid())
+  name String @unique
+  description String @default("")
+  blogs Blog[]
+}
+
+model Blog {
+  id String @unique @id @default(uuid())
+  title String
+  category Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+  owner User @relation(fields: [ownerId], references: [id])
+  ownerId String
+  abstract String
+  content String
+  author String
+  tags String[] @default([])
+  views Int @default(0)
+  likes Int @default(0)
+  createdDate DateTime @default(now())
+  updatedDate DateTime?
+  comments Comment[]
+}
+
+model Comment {
+  id String @unique @id @default(uuid())
+  blog Blog @relation(fields: [blogId], references: [id])
+  blogId String
+  parentId String? @unique
+  parentComment Comment? @relation("ParentComment", fields: [parentId], references: [id])
+  children Comment? @relation("ParentComment")
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  createdDate DateTime @default(now())
+  updatedDate DateTime? 
+}
